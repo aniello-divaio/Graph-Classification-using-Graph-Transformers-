@@ -1,0 +1,12 @@
+# Data and model files are not distributed (see README, "Data")
+data/
+embeddings/
+models/
+*.pt
+*.pth
+*.npy
+!results/**/*.npy
+logs/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/

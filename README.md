@@ -32,6 +32,9 @@ reaction (an index into a vocabulary of 4,077 reactions).
 
 ## Main results
 
+*The final results table and figures are being added; they are produced by
+`scripts/evaluate_all.py` and `scripts/make_figures.py`.*
+
 <!--RESULTS-->
 
 ## Repository structure

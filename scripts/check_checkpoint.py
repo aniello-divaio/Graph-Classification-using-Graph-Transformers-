@@ -97,6 +97,12 @@ def main():
     print('\n'.join(lines))
     print(f'\nSaved {args.out_txt}')
 
+    npz = os.path.join(os.path.dirname(args.out_txt) or '.',
+                       'atom_encoder_norms.npz')
+    np.savez(npz, norms=norms, constant_rows=constant_rows,
+             degree_rows=degree_rows, reaction_rows=reaction_rows,
+             trained_rows=trained_rows)
+    print(f'Saved {npz}')
     plot(norms, constant_rows, degree_rows, reaction_rows, trained_rows,
          args.fig_dir)
 
@@ -123,8 +129,8 @@ def plot(norms, constant_rows, degree_rows, reaction_rows, trained_rows,
         d = degree_rows[(degree_rows >= lo) & (degree_rows < hi)]
         ax.scatter(idx, norms[idx], s=3 if small else 12, color=GREY, lw=0,
                    zorder=1)
-        ax.scatter(r, norms[r], s=3 if small else 12, color=PURPLE, lw=0,
-                   zorder=2)
+        ax.scatter(r, norms[r], s=3 if small else 5, color=PURPLE, lw=0,
+                   zorder=2 if small else 5)
         ax.scatter(d, norms[d], s=6 if small else 22, color=TEAL, marker='s',
                    lw=0, zorder=3)
         ax.scatter(constant_rows, norms[constant_rows], s=45, color=GREEN,
@@ -133,8 +139,6 @@ def plot(norms, constant_rows, degree_rows, reaction_rows, trained_rows,
         ax.set_xlim(lo, hi)
         for sp in ('top', 'right'):
             ax.spines[sp].set_visible(False)
-    a1.text(zoom - 0.5, INIT_NORM + 0.08, 'random init.', color=INK2,
-            fontsize=7, ha='right', va='bottom')
     a2.set_xticks(range(0, last, 1000))
     a1.set_title(f'rows 0-{zoom - 1}', fontsize=8)
     a2.set_title('whole table', fontsize=8)
@@ -150,9 +154,11 @@ def plot(norms, constant_rows, degree_rows, reaction_rows, trained_rows,
                label='used by node degree'),
         Line2D([], [], ls='', marker='o', markersize=7, color=GREEN,
                markeredgecolor='white', label='used by the constant feature'),
+        Line2D([], [], color=INK2, lw=0.8, ls=(0, (3, 2)),
+               label=f'random initialisation ({INIT_NORM:.2f})'),
     ]
-    fig.legend(handles=handles, ncol=4, frameon=False, fontsize=7.5,
-               loc='upper center', bbox_to_anchor=(0.5, 1.07))
+    fig.legend(handles=handles, ncol=3, frameon=False, fontsize=7.5,
+               loc='upper center', bbox_to_anchor=(0.5, 1.12))
     os.makedirs(fig_dir, exist_ok=True)
     for ext in ('pdf', 'png'):
         fig.savefig(os.path.join(fig_dir, f'fig_checkpoint_norms.{ext}'),

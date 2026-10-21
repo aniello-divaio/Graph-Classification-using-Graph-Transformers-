@@ -32,10 +32,44 @@ reaction (an index into a vocabulary of 4,077 reactions).
 
 ## Main results
 
-*The final results table and figures are being added; they are produced by
-`scripts/evaluate_all.py` and `scripts/make_figures.py`.*
+Stratified 5-fold cross-validation on 7,644 bacteria, 11 classes (random
+baseline 9.1%, majority class 15.0%). Accuracy is the mean ± standard
+deviation over the 5 folds; for Graphormer the best of the four classifiers
+is shown.
 
-<!--RESULTS-->
+| Method | Node information | Accuracy (%) | Macro-F1 |
+|---|---|---|---|
+| WL kernel + SVM | reaction ID | **72.4 ± 1.7** | 0.706 |
+| WL kernel + SVM | node degree | 67.6 ± 1.1 | 0.628 |
+| Graphormer (frozen) + MLP | constant | 48.4 ± 1.3 | 0.486 |
+| Graphormer (frozen) + MLP | node degree | 37.4 ± 1.8 | 0.368 |
+| Graphormer (frozen) + MLP | reaction ID | 33.3 ± 0.4 | 0.324 |
+
+![Overall comparison](figures/fig_overall_comparison.png)
+
+- The frozen Graphormer, pretrained only on small molecules, separates the
+  bacterial groups well above chance (48.4%), so part of what it learned
+  transfers to metabolic graphs.
+- The WL kernel, whose SVM is trained directly on the bacterial labels, is
+  clearly better (72.4%), and it improves when the identity of the reactions
+  is added (67.6% → 72.4%).
+- Graphormer instead gets **worse** with more information on the nodes
+  (constant > node degree > reaction ID). Its node-embedding table was trained
+  only on the atom features of PCQM4Mv1: the rows used for the reaction IDs
+  have the norm of a random initialisation and carry no learned information.
+- The ranking of the three Graphormer configurations is the same with all four
+  classifiers:
+
+| Graphormer node features | Logistic Regression | Linear SVM | Random Forest | MLP |
+|---|---|---|---|---|
+| constant | 45.3 ± 0.8 | 45.3 ± 0.8 | 40.3 ± 1.6 | 48.4 ± 1.3 |
+| node degree | 36.7 ± 1.1 | 36.3 ± 0.8 | 34.8 ± 0.5 | 37.4 ± 1.8 |
+| reaction ID | 32.6 ± 1.1 | 31.7 ± 1.5 | 29.1 ± 1.7 | 33.3 ± 0.4 |
+
+Full results: [`results/all_results.csv`](results/all_results.csv),
+per-class F1 in [`results/per_class_f1.csv`](results/per_class_f1.csv),
+classification reports in `results/reports/`, confusion matrices in
+`results/confusion/` and all figures in `figures/`.
 
 ## Repository structure
 
@@ -51,7 +85,7 @@ scripts/
   make_figures.py           6. result figures from the files of step 5
   visualize_embeddings.py   7. t-SNE / UMAP projections
   legacy/                   earlier and diagnostic scripts (see its README)
-results/                    output of evaluate_all.py
+results/                    output of evaluate_all.py (final run)
 figures/                    output of make_figures.py and visualize_embeddings.py
 ```
 

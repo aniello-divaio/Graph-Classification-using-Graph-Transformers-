@@ -1,0 +1,15 @@
+name,Actino,Alpha,Bacilli,Clostridia,Bacteroid,Beta,Epsilon,Entero,Gamma,Other,Teneri
+graphormer_degree_logistic_regression,0.382,0.366,0.385,0.135,0.194,0.259,0.507,0.547,0.354,0.35,0.601
+graphormer_degree_linear_svm,0.38,0.368,0.376,0.143,0.186,0.239,0.446,0.536,0.361,0.353,0.514
+graphormer_degree_random_forest,0.383,0.323,0.358,0.065,0.143,0.103,0.48,0.508,0.353,0.353,0.594
+graphormer_degree_mlp,0.417,0.381,0.394,0.133,0.194,0.253,0.438,0.543,0.356,0.349,0.587
+graphormer_constant_logistic_regression,0.529,0.436,0.482,0.209,0.331,0.318,0.633,0.635,0.442,0.364,0.673
+graphormer_constant_linear_svm,0.537,0.434,0.48,0.205,0.331,0.315,0.58,0.64,0.443,0.354,0.62
+graphormer_constant_random_forest,0.47,0.403,0.439,0.053,0.213,0.194,0.489,0.536,0.388,0.346,0.725
+graphormer_constant_mlp,0.572,0.498,0.539,0.222,0.356,0.321,0.591,0.652,0.45,0.404,0.737
+graphormer_reaction_logistic_regression,0.375,0.297,0.374,0.067,0.183,0.185,0.352,0.469,0.283,0.324,0.625
+graphormer_reaction_linear_svm,0.363,0.295,0.365,0.064,0.175,0.161,0.31,0.46,0.278,0.318,0.528
+graphormer_reaction_random_forest,0.334,0.277,0.311,0.047,0.073,0.079,0.162,0.382,0.294,0.314,0.56
+graphormer_reaction_mlp,0.381,0.318,0.366,0.066,0.152,0.191,0.33,0.505,0.302,0.335,0.614
+wl_degree_svm,0.79,0.725,0.789,0.006,0.682,0.605,0.575,0.865,0.671,0.465,0.73
+wl_reaction_svm,0.787,0.75,0.853,0.356,0.604,0.575,0.805,0.916,0.726,0.575,0.818

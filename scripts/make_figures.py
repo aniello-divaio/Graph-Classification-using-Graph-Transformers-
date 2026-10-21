@@ -36,6 +36,8 @@ STYLE = {'reaction': (PURPLE, ''), 'degree': (TEAL, '///'),
          'constant': (GREEN, '\\\\\\')}
 LABEL = {'reaction': 'Reaction ID', 'degree': 'Node degree',
          'constant': 'Constant'}
+LABEL_LC = {'reaction': 'reaction ID', 'degree': 'node degree',
+            'constant': 'constant'}
 CLASSES = ['Actino', 'Alpha', 'Bacilli', 'Clostridia', 'Bacteroid', 'Beta',
            'Epsilon', 'Entero', 'Gamma', 'Other', 'Teneri']
 LONG = {'Actino': 'Actinomycetota', 'Alpha': 'Alphaproteobacteria',
@@ -134,8 +136,11 @@ def fig_overall(rows, rnd, maj, fig_dir):
     if abs(maj - rnd) < 2.5:  # baselines coincide: one line, one label
         lines = ((rnd, f'random = majority class {rnd:.1f}%', top),)
     for x, lab, yl in lines:
-        ax.axvline(x, color=INK2, lw=0.8, ls=(0, (3, 2)))
-        ax.text(x + 0.8, yl, lab, color=INK2, fontsize=7.5, va='bottom')
+        ax.axvline(x, color=INK2, lw=0.8, ls=(0, (3, 2)), zorder=1)
+    for x, lab, yl in lines:  # white box: the other dashed line passes behind
+        ax.text(x + 0.8, yl, lab, color=INK2, fontsize=7.5, va='bottom',
+                zorder=5, bbox=dict(facecolor='white', edgecolor='none',
+                                    pad=0.4))
     xmax = max(float(best(rows, m, f)['accuracy_mean']) +
                float(best(rows, m, f)['accuracy_std']) for m, f in wl + gr)
     ax.set_xlim(0, max(85, xmax + 12))
@@ -193,11 +198,15 @@ def fig_per_class(rows, f1rows, fig_dir):
         (best(rows, 'WL kernel', 'degree')['name'], TEAL, 'o', True,
          'WL kernel – node degree'),
     ]
-    g = best(rows, 'Graphormer (frozen)', 'reaction')
-    series.append((g['name'], PURPLE, 's', False,
-                   f'Graphormer (frozen) + {g["classifier"]} – reaction ID'))
+    for feat in ('reaction', 'constant'):
+        if any(r['method'] == 'Graphormer (frozen)' and r['node_features'] == feat
+               for r in rows):
+            g = best(rows, 'Graphormer (frozen)', feat)
+            series.append((g['name'], STYLE[feat][0], 's', False,
+                           f'Graphormer (frozen) + {g["classifier"]} – '
+                           f'{LABEL_LC[feat]}'))
     order = sorted(CLASSES, key=lambda c: f1[series[0][0]][c])
-    offsets = {0: 0.14, 1: -0.14, 2: 0.0}
+    offsets = {0: 0.15, 1: -0.15, 2: 0.05, 3: -0.05}
     fig, ax = plt.subplots(figsize=(6.3, 4.0))
     for i, c in enumerate(order):
         vals = [f1[s[0]][c] for s in series]
@@ -220,7 +229,7 @@ def fig_per_class(rows, f1rows, fig_dir):
                       markeredgecolor=col, markeredgewidth=1.6, label=lab)
                for _, col, mk, filled, lab in series]
     ax.legend(handles=handles, frameon=False, ncol=2, fontsize=8,
-              loc='upper center', bbox_to_anchor=(0.35, 1.13))
+              loc='upper center', bbox_to_anchor=(0.4, 1.15))
     style(ax, 'x')
     ax.tick_params(axis='y', length=0)
     save(fig, fig_dir, 'fig_per_class_f1')
@@ -231,7 +240,7 @@ def draw_cm(ax, cm, title):
     ax.imshow(pct, cmap='viridis', vmin=0, vmax=100)
     for i in range(len(CLASSES)):
         for j in range(len(CLASSES)):
-            if cm[i, j]:
+            if round(pct[i, j]) >= 1:  # empty cell = less than 0.5 %
                 ax.text(j, i, f'{pct[i, j]:.0f}', ha='center', va='center',
                         fontsize=6, color=INK if pct[i, j] > 60 else 'white')
     ax.set_xticks(range(len(CLASSES)), CLASSES, rotation=60, ha='right',
@@ -254,7 +263,7 @@ def fig_confusion(rows, results_dir, fig_dir):
     for ax, r, head in ((axes[0], wl, 'WL kernel + SVM'),
                         (axes[1], gr, f'Graphormer (frozen) + {gr["classifier"]}')):
         draw_cm(ax, np.load(cm_path(r['name'])),
-                f'{head}\n{LABEL[r["node_features"]].lower()} – '
+                f'{head}\n{LABEL_LC[r["node_features"]]} – '
                 f'{float(r["accuracy_mean"]):.1f}%')
     axes[0].set_ylabel('True class', fontsize=8)
     axes[1].set_yticklabels([])
@@ -266,7 +275,7 @@ def fig_confusion(rows, results_dir, fig_dir):
         fig, ax = plt.subplots(figsize=(3.6, 3.4))
         draw_cm(ax, np.load(cm_path(r['name'])),
                 f'{r["method"]} + {r["classifier"]}\n'
-                f'{LABEL[r["node_features"]].lower()} – '
+                f'{LABEL_LC[r["node_features"]]} – '
                 f'{float(r["accuracy_mean"]):.1f}%')
         ax.set_ylabel('True class', fontsize=8)
         save(fig, fig_dir, f'annex_confusion_{r["name"]}')

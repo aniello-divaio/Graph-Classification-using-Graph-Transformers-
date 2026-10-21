@@ -1,0 +1,17 @@
+              precision    recall  f1-score   support
+
+      Actino      0.519     0.556     0.537      1146
+       Alpha      0.429     0.438     0.434       922
+     Bacilli      0.466     0.496     0.480      1041
+  Clostridia      0.230     0.184     0.205       315
+   Bacteroid      0.346     0.316     0.331       531
+        Beta      0.362     0.278     0.315       571
+     Epsilon      0.478     0.735     0.580       223
+      Entero      0.623     0.658     0.640       591
+       Gamma      0.443     0.442     0.443      1139
+       Other      0.382     0.330     0.354       962
+      Teneri      0.554     0.704     0.620       203
+
+    accuracy                          0.453      7644
+   macro avg      0.439     0.467     0.449      7644
+weighted avg      0.445     0.453     0.447      7644

@@ -14,7 +14,8 @@ Weisfeiler-Lehman kernel + SVM on the 250-node sampled graphs:
     reaction    -> initial WL label = reaction ID
 
 Classifiers on embeddings are wrapped in a Pipeline(StandardScaler, clf), so
-the scaler is fitted on the training folds only.
+the scaler is fitted on the training folds only. The linear SVM is LinearSVC
+(liblinear, one-vs-rest, squared hinge loss).
 
 Outputs (in --out_dir):
     all_results.csv                 one row per configuration (mean, std, folds)
@@ -41,7 +42,7 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC
+from sklearn.svm import SVC, LinearSVC
 
 SHORT_NAMES = ['Actino', 'Alpha', 'Bacilli', 'Clostridia', 'Bacteroid',
                'Beta', 'Epsilon', 'Entero', 'Gamma', 'Other', 'Teneri']
@@ -51,7 +52,9 @@ SEED = 42
 def classifiers():
     return {
         'Logistic Regression': LogisticRegression(max_iter=1000, random_state=SEED),
-        'Linear SVM': SVC(kernel='linear', C=1.0, random_state=SEED),
+        # LinearSVC (liblinear, one-vs-rest): SVC(kernel='linear') is far too slow
+        # on 7,644 x 768 embeddings (one-vs-one, 55 binary problems per fold)
+        'Linear SVM': LinearSVC(C=1.0, dual=False, max_iter=5000, random_state=SEED),
         'Random Forest': RandomForestClassifier(n_estimators=100, random_state=SEED),
         'MLP': MLPClassifier(hidden_layer_sizes=(512, 256), max_iter=500,
                              early_stopping=True, random_state=SEED),
@@ -121,8 +124,11 @@ def record(name, method, features, clf_name, accs, y, y_pred, out, rows, f1rows)
     with open(os.path.join(out, 'reports', f'{name}.txt'), 'w') as fh:
         fh.write(classification_report(y, y_pred, target_names=SHORT_NAMES,
                                        digits=3))
-    print(f'  {name:<32} {100 * accs.mean():5.1f} ± {100 * accs.std():.1f}',
-          flush=True)
+    print(f'  {name:<40} {100 * accs.mean():5.1f} ± {100 * accs.std():.1f}'
+          f'   [{time.strftime("%H:%M:%S")}]', flush=True)
+    # save after every configuration, so partial results survive an interruption
+    write_csv(os.path.join(out, 'all_results.csv'), rows)
+    write_csv(os.path.join(out, 'per_class_f1.csv'), f1rows)
 
 
 def write_csv(path, rows):
@@ -177,6 +183,7 @@ def main():
             raise SystemExit(f'{path}: labels disagree with the dataset')
         print(f'\nGraphormer, node features = {features}  ({X.shape})', flush=True)
         for clf_name, clf in classifiers().items():
+            print(f'  ... {clf_name} [{time.strftime("%H:%M:%S")}]', flush=True)
             accs, y_pred = cv_embeddings(clf, X, y, folds)
             name = f'graphormer_{features}_{clf_name.lower().replace(" ", "_")}'
             record(name, 'Graphormer (frozen)', features, clf_name, accs, y,

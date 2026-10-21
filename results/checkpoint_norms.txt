@@ -1,0 +1,11 @@
+checkpoint: /home/aniello/.cache/torch/hub/checkpoints/checkpoint_best_pcqm4mv1.pt
+table: encoder.graph_encoder.graph_node_feature.atom_encoder.weight, shape (4609, 768)
+expected norm of an untrained row: 0.02 * sqrt(768) = 0.554
+rows with norm > 1.0: 58 (indices 2-4099); mean norm 2.356 (min 1.057, max 5.278)
+rows with norm <= 1.0: mean norm 0.554
+
+rows used by each node-feature configuration:
+constant          1 rows used | mean norm 2.436 (min 2.436, max 2.436) | 1 trained (100.0%)
+node degree      40 rows used | mean norm 1.858 (min 0.535, max 5.278) | 23 trained (57.5%)
+reaction ID    1333 rows used | mean norm 0.605 (min 0.502, max 5.278) | 33 trained (2.5%)
+(row 2, constant feature: norm 2.436)

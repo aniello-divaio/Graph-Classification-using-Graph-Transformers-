@@ -56,7 +56,12 @@ is shown.
 - Graphormer instead gets **worse** with more information on the nodes
   (constant > node degree > reaction ID). Its node-embedding table was trained
   only on the atom features of PCQM4Mv1: the rows used for the reaction IDs
-  have the norm of a random initialisation and carry no learned information.
+  have the norm of a random initialisation and carry no learned information
+  (`scripts/check_checkpoint.py`, output in
+  [`results/checkpoint_norms.txt`](results/checkpoint_norms.txt)): the
+  constant feature uses a trained row, 57.5% of the rows used by the node
+  degree are trained, and only 2.5% of those used by the reaction IDs are,
+  the same order as the accuracies.
 - The ranking of the three Graphormer configurations is the same with all four
   classifiers:
 
@@ -84,6 +89,7 @@ scripts/
   evaluate_all.py           5. all classifiers and WL kernels, 5-fold CV
   make_figures.py           6. result figures from the files of step 5
   visualize_embeddings.py   7. t-SNE / UMAP projections
+  check_checkpoint.py       8. norms of Graphormer's node-feature embedding table
   legacy/                   earlier and diagnostic scripts (see its README)
 results/                    output of evaluate_all.py (final run)
 figures/                    output of make_figures.py and visualize_embeddings.py
